@@ -1,3 +1,7 @@
+/* this is request handling server for dhive robots
+ * app protocol spec is specified in the README.md
+ * 
+ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -22,6 +26,8 @@ void childHandler(int signal)
         printf("PID Exit-V Exit-S : %d  %d  %d\n", spid,WEXITSTATUS(status), WIFEXITED(status));
     }
 }
+
+
 
 int main(int argc, char *argv[]) {
     int server_sockfd, client_sockfd; //socket communication btwn server, client 

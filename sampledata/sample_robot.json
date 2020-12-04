@@ -1,1 +1,15 @@
-hello
+{"Robot": [{
+	"RoID": "RI00001",
+	"DeID": "DI00001",
+    "Datetime": "2013-01-01 12:00:00",
+	"Location": "nnnnnnnN - eeeeeeE",
+	"Battery": "80",
+	"Delivery": "0",
+	"Status": "00",
+	"Gps": "11",
+	"Wh": "123456",
+	"Camera": "1",
+	"Door": "1",
+	"Disp": "1"
+}]
+}
