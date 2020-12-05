@@ -70,8 +70,8 @@ int getRoID(char *buf, char * mytitle){
 
 	while( position < size){
 		switch(buf[position]){
-			case '"':
-				char* begin = buf + postion + 1; // string
+			case '"':{
+				char* begin = buf + position + 1; // string
 				char* end = strstr(begin, '"');
 				if (end == NULL){
 					printf("end with NULL, Invalid string\n");
@@ -93,11 +93,12 @@ int getRoID(char *buf, char * mytitle){
 				}
 				position = position + stringlength + 1;
 				break;
-				
-			default:
+				 }
+			default:{
 				position++;
 				printf("default case\n");
 				break;
+				}
 		}
 	}
 	printf("No RoId here\n");
@@ -134,15 +135,15 @@ void redishandle(char * buf){
 	if (write(redis_sockfd, memory, strlen(memory))<0){
         perror("Fail to write to redis server");
         close(redis_sockfd);
-        return -1;
+        return ;
     }
 
 	char red_buf[2048];
-	memeset(red_buf, 0x00, 2048);
+	memset(red_buf, 0x00, 2048);
 	if (read(redis_sockfd, red_buf, 2048) < 0){
         perror("fail to read from redis server");
         close(redis_sockfd);
-        return -1;
+        return ;
     }
 	//printf("SET, redis read done\n");
 	close(redis_sockfd);
@@ -236,7 +237,7 @@ int main(int argc, char *argv[]) {
 			int count = 0;
 
 			char lognum [4];
-			sprintf(lognum, %d, pid);
+			sprintf(lognum, "%d", pid);
 			
 			char filename[20];
 			memset(filename, 0x00, 20);

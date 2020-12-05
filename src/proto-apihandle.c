@@ -180,7 +180,7 @@ static void readcb(struct bufferevent *bev, void *ctx){
         if (strcmp(key_buf, "robot") == 0){
             strcpy(memory_red, "*2\r\n$4\r\nKEYS\r\n$1\r\n*\r\n");
         } else {
-            printf("no robot in GET"\n);
+            printf("no robot in GET\n");
         }
 	} else {
 		char *body_start;
@@ -196,7 +196,7 @@ static void readcb(struct bufferevent *bev, void *ctx){
             } else {
                 printf("no /robot/ROID\n");
                 bufferevent_free(bev);
-                return 0;
+                return ;
             }
 			ptr1 = strtok_r(NULL, "\r\n", &next_ptr); // HTTP version
 			ptr1 = strstr(next_ptr, "Content-Length"); // length header check
@@ -219,7 +219,7 @@ static void readcb(struct bufferevent *bev, void *ctx){
                 } else {
                     printf("no /robot/ROID\n");
                     bufferevent_free(bev);
-                    return 0;
+                    return;
                 }
                 //ptr1 = strtok_r(NULL, "\r\n", &next_ptr); // HTTP version
             }

@@ -3,11 +3,11 @@
 CLIENT_HEADER = src/common.h
 CLIENT_SOURCE = src/proto-cli.c
 
-R_API_HANDLE_HDR = src/common.h src.urlencode.h
-R_API_HANDLE_SRC = src/proto-apihandler.c src/urlencode.c
+R_API_HANDLE_HDR = src/common.h src/urlencode.h
+R_API_HANDLE_SRC = src/proto-apihandle.c src/urlencode.c
 
-SERVER_HEADER = src/common.h 
-SERVER_SOURCE = src/proto-server.c 
+SERVER_HEADER = src/common.h  src/urlencode.h
+SERVER_SOURCE = src/proto-server.c src/urlencode.c
 
 ##############################
 

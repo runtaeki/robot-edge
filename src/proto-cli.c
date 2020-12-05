@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
     memset(send_pack->msg, 0x00, BUF_SIZE);
     if(fgets(send_pack->msg, BUF_SIZE, fp)==NULL){
         printf("file read fail\n");
-        return;
+        return 0;
     }
 
     if (write(client_sockfd, (char *)send_pack, send_pack->length)<0){
