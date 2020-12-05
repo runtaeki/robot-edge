@@ -1,4 +1,7 @@
-bin
+bin/
+
+log/
+
 .tmp
 
 # Prerequisites
@@ -33,3 +36,4 @@ bin
 *.exe
 *.out
 *.app
+

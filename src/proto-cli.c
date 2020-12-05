@@ -75,9 +75,9 @@ int main(int argc, char *argv[]) {
 
     if (argc != 4) {
 	if (argc < 4)
-        fprintf(stderr, "need more args!\n --> ex) $ ./client 127.0.0.1 12345 test.txt \n");
+        fprintf(stderr, "need more args!\n --> ex) $ ./bin/proto-client 127.0.0.1 12345 ./sampledata/sample_robot.json \n");
 	if (argc > 4)
-	    fprintf(stderr, "too many args!\n --> ex) $ ./client 127.0.0.1 12345 test.txt \n");
+	    fprintf(stderr, "too many args!\n --> ex) $ ./bin/proto-client 127.0.0.1 12345 ./sampledata/sample_robot.json \n");
         exit(1);
     }
     
@@ -125,72 +125,35 @@ int main(int argc, char *argv[]) {
     }
 
     H_PACK *send_pack = malloc(sizeof(H_PACK));
-
     send_pack->version = 0x04;
     send_pack->USERID = 0x08;
-    send_pack->sequence = htons(seqNum); //shold be random
-    send_pack->length = htons(sizeof(H_PACK)-BUF_SIZE);
-    send_pack->command = htons(C_HELLO);
+    send_pack->sequence = seqNum; //shold be random
+    send_pack->length = sizeof(H_PACK)-BUF_SIZE;
+    send_pack->command = DT_STRE;
 
-    printf("|v: %x|ID: %x|seq: %x|\n| len:  %x | com:  %x |\n", send_pack->version, send_pack->USERID, send_pack->sequence, send_pack->length, send_pack->command);
-    
-    if (write(client_sockfd, (char *)send_pack, ntohs(send_pack->length))<0){
+    memset(send_pack->msg, 0x00, BUF_SIZE);
+    if(fgets(send_pack->msg, BUF_SIZE, fp)==NULL){
+        printf("file read fail\n");
+        return;
+    }
+
+    if (write(client_sockfd, (char *)send_pack, send_pack->length)<0){
         perror("Fail to write to server");
         free(send_pack);
-        close(client_sockfd);
-        return 0;
-    }
-
-    H_HEADER *recv_header = malloc(sizeof(H_HEADER));
-    if (read(client_sockfd, (char *)recv_header, sizeof(H_HEADER)) < 0){
-        error_send(client_len, seqNum+1);
-        perror("fail to read from server");
-        free(send_pack);
-        free(recv_header);
-        close(client_sockfd);
-        return 0;
-    }
-
-    if (recv_header->sequence!=ntohs(seqNum++) 
-        && recv_header->command!=ntohs(S_HELLO)){
-        printf("recv sequence number or command error!\n");
-        error_send(client_len, seqNum+1);
-        free(send_pack);
-        free(recv_header);
         fclose(fp);
         close(client_sockfd);
-        exit(1);
+        return 0;
     }
-
-    send_pack->command = htons(DT_DLVR);
-    free(recv_header);
-    fflush(stdout);
-
-    while(1){
-        memset(send_pack->msg, 0x00, BUF_SIZE);
-        if(fgets(send_pack->msg, BUF_SIZE, fp)==NULL){
-            break;
-        }
-        send_pack->sequence = htons(seqNum++);
-        send_pack->length = htons(strlen(send_pack->msg)+8);
-        if (write(client_sockfd, (char *)send_pack, ntohs(send_pack->length))<0){
-            perror("Fail to write to server");
-            free(send_pack);
-            fclose(fp);
-            exit(1);
-        }
-    }
+    //printf("|v: %x|ID: %x|seq: %x|\n| len:  %x | com:  %x |\n", send_pack->version, send_pack->USERID, send_pack->sequence, send_pack->length, send_pack->command);
     fclose(fp);
-
-    send_pack->command = htons(DT_STRE);
-    send_pack->sequence = htons(ntohs(send_pack->sequence)+1);
-    send_pack->length = htons(sizeof(H_PACK)-BUF_SIZE+strlen(argv[3]));
+    send_pack->command = DT_END;
+    send_pack->length = 8;
     memset(send_pack->msg, 0x00, BUF_SIZE);
-    strcpy(send_pack->msg, argv[3]);
-    
-    if (write(client_sockfd, (char *)send_pack, ntohs(send_pack->length))<0){
+    if (write(client_sockfd, (char *)send_pack, send_pack->length)<0){
         perror("Fail to write to server");
         free(send_pack);
+        close(client_sockfd);
+        return 0;
     }
     //----------------------------------------------
     printf("---------File sent, done--------\n");

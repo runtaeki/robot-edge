@@ -2,11 +2,15 @@
 #define __COMMON_H_
 
 #define BUF_SIZE 2048
-#define C_HELLO 0x0001
-#define S_HELLO 0x0002
-#define DT_DLVR 0x0003
-#define DT_STRE 0x0004
-#define ERROR 0x0005
+#define MEMORY_SIZE 4 * 1048576
+
+// commands list
+#define C_HELLO 0x0001  // client hello (for test)
+#define S_HELLO 0x0002 // server hello (for test)
+#define DT_DLVR 0x0003 // write the log
+#define DT_STRE 0x0004 // store the data at redis server and write log
+#define DT_END 0x0005 // disconnect the client and stop log writing
+#define ERROR 0x0006
 
 /*
 C_HELLO -> client hello 0x0001
