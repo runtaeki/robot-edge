@@ -22,8 +22,8 @@ int glb_redis_port = 6388;
 int pair_resp(char* memory, char *method, char* key, char* val){
 	char str_len[20];
 	//printf("pair transforming start\nmethod: %s\n", method);
-	char* dec_key = url_decode(key);
-	char* dec_val = url_decode(val);
+	char* dec_key = key;
+	char* dec_val = val;
 	memset(str_len, 0x00, 20);
 	strcat(memory, "*"); //*
 	if (strcmp(method, "GET")==0){strcat(memory, "2");} // GET - total 2 followings
@@ -72,7 +72,7 @@ int getRoID(char *buf, char * mytitle){
 		switch(buf[position]){
 			case '"':{
 				char* begin = buf + position + 1; // string
-				char* end = strstr(begin, '"');
+				char* end = strchr(begin, '"');
 				if (end == NULL){
 					printf("end with NULL, Invalid string\n");
 					break;

@@ -184,6 +184,7 @@ static void readcb(struct bufferevent *bev, void *ctx){
         }
 	} else {
 		char *body_start;
+        char *ptr2;
 		ptr1 = strstr(buf, "POST");
 		if (ptr1 != NULL){
 			printf("==> POST\n");
@@ -192,7 +193,7 @@ static void readcb(struct bufferevent *bev, void *ctx){
 			ptr1 = strtok_r(NULL, " ", &next_ptr); // ptr1 = /
             strcpy(key_buf, ptr1+1); // the location(=key)
             if(strncmp("robot/", key_buf, 7)==0){
-                key_buf = key_buf+7;
+                ptr2 = key_buf+7;
             } else {
                 printf("no /robot/ROID\n");
                 bufferevent_free(bev);
@@ -205,7 +206,7 @@ static void readcb(struct bufferevent *bev, void *ctx){
 			total_len = atoi(ptr1);
 			//printf("===========body-len: [%d]==========\n", total_len);
 			read_var = (int)strlen(body_start+4);
-            pair_resp(memory_red, "SET", key_buf, body_start);
+            pair_resp(memory_red, "SET", ptr2, body_start);
 		} // if tail, POST handle
 		else {
             ptr1 = strstr(buf, "DELETE");
@@ -214,8 +215,8 @@ static void readcb(struct bufferevent *bev, void *ctx){
                 ptr1 = strtok_r(NULL, " ", &next_ptr); // ptr1 = /location
                 strcpy(key_buf, ptr1+1); // the location(=key)
                 if(strncmp("robot/", key_buf, 7)==0){
-                    key_buf = key_buf+7;
-                    pair_resp(memory_red, "DEL", key_buf, key_buf);
+                    ptr2 = key_buf+7;
+                    pair_resp(memory_red, "DEL", ptr2, ptr2);
                 } else {
                     printf("no /robot/ROID\n");
                     bufferevent_free(bev);
