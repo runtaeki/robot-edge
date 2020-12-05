@@ -61,6 +61,12 @@ This client is an example client for showing communication between server and cl
 
 ## API handle
 This is for http requests which want to GET(or SET, POST) robot data. You can check the basic robot API docs at this link.
+### File
+- proto-apihandle.c
+### Run
+```bash
+~$ ./bin/proto-apihandle ${SERVER_PORT} ${REDIS_SERVER_IP} ${REDIS_SERVER_PORT}
+```
 ### Install libevent
 ```bash
 ~$ sudo apt-get install libevent-dev
