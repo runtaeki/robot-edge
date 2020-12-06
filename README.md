@@ -63,7 +63,7 @@ This client is an example client for showing communication between server and cl
 ```
 
 ## API handle
-This is for http requests which want to GET(or SET, POST) robot data. You can check the basic robot API docs at this [swagger-link](https://app.swaggerhub.com/apis-docs/runtaeki/robot-dhive/1.0.0, "swagger-dhive-robot").
+This is for http requests which want to GET(or SET, POST) robot data. You can check the basic robot API docs at this [swagger-link](https://app.swaggerhub.com/apis-docs/runtaeki/robot-dhive/1.0.0 "swagger-dhive-robot").
 ### File
 - proto-apihandle.c
 ### Run
