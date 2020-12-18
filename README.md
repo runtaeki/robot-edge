@@ -1,5 +1,8 @@
 # Robot server and API handler
 This is prototypes of robot server(also simple client you can change this as you wish) and api handler. <br> The Robot server is based on socket programming and the app protocol is specified in the below(with unique structure). The API handler uses http, and validating is very simple. It takes the requests from http clients(any clients) and then send parse the json body.<br> This parsed data is sent to the redis server with RESP and takes responses. then return the http response to clients.<br>
+
+<img src="./server-structure.png" width="400px" height="230px" title="server-structure" alt="Duck"></img><br/>
+
 ## Dependency
 `C`, `C++`, `linux`, `libevent`
 
@@ -60,7 +63,7 @@ This client is an example client for showing communication between server and cl
 ```
 
 ## API handle
-This is for http requests which want to GET(or SET, POST) robot data. You can check the basic robot API docs at this link.
+This is for http requests which want to GET(or SET, POST) robot data. You can check the basic robot API docs at this [swagger-link](https://app.swaggerhub.com/apis-docs/runtaeki/robot-dhive/1.0.0 "swagger-dhive-robot").
 ### File
 - proto-apihandle.c
 ### Run
