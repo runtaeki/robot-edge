@@ -167,8 +167,8 @@ static void readcb(struct bufferevent *bev, void *ctx){
 	//printf("=======================\n%s\n======================\n", buf);
 	header_check = 1;
 	if (strstr(buf, "\r\n\r\n")!=NULL){header_check = -1;incomplete_key = -1; incomplete_val = -1;}
-	
 	char *m_ptr = NULL;
+	char *ptr2;
 	total_len = read_var;
 	char *ptr1 = strstr(buf, "GET"); // check "GET" method
 	if(ptr1 != NULL){
@@ -177,14 +177,22 @@ static void readcb(struct bufferevent *bev, void *ctx){
 		ptr1 = strtok_r(NULL, " ", &next_ptr); // ptr1 = /location
 		strcpy(key_buf, ptr1+1); // the location(=key)
 		ptr1 = strtok_r(NULL, "\r\n", &next_ptr); // HTTP version
-        if (strcmp(key_buf, "robot") == 0){
-            strcpy(memory_red, "*2\r\n$4\r\nKEYS\r\n$1\r\n*\r\n");
-        } else {
-            printf("no robot in GET\n");
+        if (strncmp("robot", key_buf, 5)==0){
+			if(strncmp("robot/", key_buf, 6)==0){
+            	ptr2 = key_buf+6;
+				printf("RoID in path:[%s]\n", ptr2);
+				int temp_str_len = strlen(ptr2);
+				pair_resp(memory_red, "GET", ptr2, ptr2);
+            } else if (strlen(key_buf) == 5){
+            	strcpy(memory_red, "*2\r\n$4\r\nKEYS\r\n$1\r\n*\r\n");
+			} else {
+				printf("no robot/RoID in path, GET \n");
+			}
+        } else{
+            printf("no robot in path, GET\n");
         }
 	} else {
 		char *body_start;
-        char *ptr2;
 		ptr1 = strstr(buf, "POST");
 		if (ptr1 != NULL){
 			printf("==> POST\n");
@@ -192,8 +200,9 @@ static void readcb(struct bufferevent *bev, void *ctx){
 			ptr1 = strtok_r(ptr1, " ", &next_ptr); // ptr1 = POST
 			ptr1 = strtok_r(NULL, " ", &next_ptr); // ptr1 = /
             strcpy(key_buf, ptr1+1); // the location(=key)
-            if(strncmp("robot/", key_buf, 7)==0){
-                ptr2 = key_buf+7;
+            if(strncmp("robot/", key_buf, 6)==0){
+                ptr2 = key_buf+6;
+				printf("RoID in path:[%s]\n", ptr2);
             } else {
                 printf("no /robot/ROID\n");
                 bufferevent_free(bev);
@@ -229,7 +238,7 @@ static void readcb(struct bufferevent *bev, void *ctx){
             }
 		}
 	} 
-
+	printf(">>>> memory_red---------\n%s--------<<<<\n", memory_red);
     dst = bufferevent_get_output(partner);
     //evbuffer_set_max_read(dst, 8192*2);
     n = evbuffer_add(dst, memory_red, strlen(memory_red));
