@@ -301,7 +301,11 @@ static void readcb(struct bufferevent *bev, void *ctx){
             }
             else {
                 printf("Invalid method\n");
-		return ;
+		//bufferevent_free(bev);
+		char resp_msg[200] = "HTTP/1.1 405 Method Not Allowed\r\nContent-Type: text/html\r\nContent-Length:18\r\n\r\nMethod Not Allowed";
+		dst = bufferevent_get_output(bev);
+		evbuffer_add(dst, resp_msg, strlen(resp_msg));
+		//return ;
             }
 		}
 	} 
