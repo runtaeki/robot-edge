@@ -26,7 +26,7 @@
 #include "urlencode.h"
 
 #define MAX_OUTPUT (512*1024)
-#define BUF_SIZE 4096*2 //4096
+#define API_BUF_SIZE 4096*2 //4096
 #define MEM_SIZE 4096*4  //sizeof(char)*4*1048576
 #define THR_SIZE 2048
 
@@ -150,10 +150,10 @@ static void readcb(struct bufferevent *bev, void *ctx){
 	int total_len = 0;
 
 	//char buf[BUF_SIZE];
-	char key_buf[BUF_SIZE];
-	char val_buf[BUF_SIZE];
+	char key_buf[API_BUF_SIZE];
+	char val_buf[API_BUF_SIZE];
 	//memset(buf, 0x00, BUF_SIZE);
-	memset(key_buf, 0x00, BUF_SIZE);
+	memset(key_buf, 0x00, API_BUF_SIZE);
 	//buf[BUF_SIZE-1] = '\0';
 
 	char *memory = malloc(MEM_SIZE); //4MB malloc memory

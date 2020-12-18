@@ -16,12 +16,12 @@
 
 #include "common.h"
 
-int glb_redis_port = 6388;
+int glb_redis_port = 6399;
 
 
 int pair_resp(char* memory, char *method, char* key, char* val){
 	char str_len[20];
-	//printf("pair transforming start\nmethod: %s\n", method);
+	printf("pair transforming start\nmethod: %s\n", method);
 	char* dec_key = key;
 	char* dec_val = val;
 	memset(str_len, 0x00, 20);
@@ -42,8 +42,8 @@ int pair_resp(char* memory, char *method, char* key, char* val){
 	strcat(memory, dec_key);
 	strcat(memory, "\r\n"); // *[#]\r\n$[len(mth)]\r\n[method]\r\n$[len(key)]\r\n[key]\r\n
 	if (strcmp(method, "GET")==0){
-		free(dec_key);
-		free(dec_val);
+		//free(dec_key);
+		//free(dec_val);
 		// end of resp transforminga
 		return 0;
 	}
@@ -53,8 +53,8 @@ int pair_resp(char* memory, char *method, char* key, char* val){
 	strcat(memory, "\r\n");  // *[#]\r\n$[len(mth)]\r\n[method]\r\n$[len(key)]\r\n[key]\r\n$[len(val)]\r\n
 	strcat(memory, dec_val);
 	strcat(memory, "\r\n"); // *[#]\r\n$[len(mth)]\r\n[method]\r\n$[len(key)]\r\n[key]\r\n$[len(val)]\r\n[val]\r\n
-	free(dec_key);
-	free(dec_val);
+	//free(dec_key);
+	//free(dec_val);
 	return 0;
 }
 
@@ -79,6 +79,7 @@ int getRoID(char *buf, char * mytitle){
 				}
 
 				int stringlength = end - begin; 
+				printf("strlen is : [%d]\n", stringlength);
 				if (idfound == 1){
 					strncpy(mytitle, begin, stringlength);
 					printf("RoId: [%s]", mytitle);
@@ -95,11 +96,12 @@ int getRoID(char *buf, char * mytitle){
 				break;
 				 }
 			default:{
-				position++;
+				//position++;
 				printf("default case\n");
 				break;
 				}
 		}
+		position++;
 	}
 	printf("No RoId here\n");
 	return -1;
@@ -110,17 +112,17 @@ void redishandle(char * buf){
 	char myRoID[20];
 	memset(myRoID, 0x00, 20);
 	getRoID(buf, myRoID);
-
+	printf("myRoID: [%s]\n", myRoID);
 	char memory[2048];
 	memset(memory, 0x00, 2048);
 	pair_resp(memory, "SET", myRoID, buf);
-
+	printf("%s\n", memory);
 	int redis_len;
 	int redis_sockfd;
 	char redis_addr[15] = "127.0.0.1";
 	struct sockaddr_in redisaddr;
 
-	//printf("redis_handler start\n");
+	printf("redis_handler start\n");
 	redis_sockfd = socket(AF_INET, SOCK_STREAM, 0);
     redisaddr.sin_family = AF_INET;
     redisaddr.sin_addr.s_addr = inet_addr(redis_addr);
@@ -237,13 +239,14 @@ int main(int argc, char *argv[]) {
 			int count = 0;
 
 			char lognum [4];
-			sprintf(lognum, "%d", pid);
+			sprintf(lognum, "%d", client_sockfd);
 			
 			char filename[20];
 			memset(filename, 0x00, 20);
 			strcat(filename, "./log/");
 			strcat(filename, lognum);
 			strcat(filename, ".log");
+			printf("filename: [%s]\n", filename);
 			FILE *fp = fopen(filename, "w");
 
 			while (1){
@@ -255,9 +258,11 @@ int main(int argc, char *argv[]) {
 					break;
 				}
 				if (recv_header->length>8){
+					printf("read_buf");
 					read(client_sockfd, buf, recv_header->length-8);
 				} else {
 					if(recv_header->command == DT_END){
+						printf("DT_END");
 						fclose(fp);
 						free(recv_header);
 						break;
@@ -265,17 +270,21 @@ int main(int argc, char *argv[]) {
 				}
 
 				if(recv_header->command == DT_STRE || recv_header->command == DT_DLVR){
-					//printf("saved file name :%s\n", buf);
+					printf("saved file name :%s\n", buf);
 					//strcat(buf, "server");
 					fprintf(fp, "%s\n", buf);
 					if(recv_header->command == DT_STRE){
+					 	printf("redishandle start\n");
 						redishandle(buf);
 					}
 				}else if(recv_header->command == DT_END){
+					printf("DT_END\n");
 					fclose(fp);
 					free(recv_header);
 					break;
 				}
+				char myresp[10] = "OK"; 
+				write(client_sockfd, myresp, strlen(myresp));
 		    }
 			close(client_sockfd);
 			exit(0);

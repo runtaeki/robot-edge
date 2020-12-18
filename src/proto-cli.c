@@ -132,10 +132,18 @@ int main(int argc, char *argv[]) {
     send_pack->command = DT_STRE;
 
     memset(send_pack->msg, 0x00, BUF_SIZE);
-    if(fgets(send_pack->msg, BUF_SIZE, fp)==NULL){
-        printf("file read fail\n");
-        return 0;
+    char temp_buf[1024];
+    while(!feof(fp)){
+	    memset(temp_buf, 0x00, 1024);
+	    if(fgets( temp_buf, 1024, fp)==NULL){
+		    printf("file read fail\n");
+		    return 0;
+	    }
+	    strcat(send_pack->msg, temp_buf);
     }
+
+    //printf("msg: [ %s ]\n", send_pack->msg);
+    send_pack->length= 8+strlen(send_pack->msg);
 
     if (write(client_sockfd, (char *)send_pack, send_pack->length)<0){
         perror("Fail to write to server");
@@ -149,6 +157,13 @@ int main(int argc, char *argv[]) {
     send_pack->command = DT_END;
     send_pack->length = 8;
     memset(send_pack->msg, 0x00, BUF_SIZE);
+    
+    char myresp[10];
+    memset(myresp, 0x00, 10);
+    read(client_sockfd, myresp, 10);
+    if (strcmp(myresp, "OK")!=0){
+    	return 0;
+    }
     if (write(client_sockfd, (char *)send_pack, send_pack->length)<0){
         perror("Fail to write to server");
         free(send_pack);
