@@ -135,13 +135,21 @@ static void readcb(struct bufferevent *bev, void *ctx){
 	}
 
     char buf[1024*8];
+    memset(buf, 0x00, 1024*8);
     int n;
     while ((n = evbuffer_remove(src, buf, sizeof(buf))) > 0) {
 		//fwrite(buf, 1, n, stdout);
     	//fflush(stdout);
+	printf("n is -> [%d]\n", n);
         printf("recv: %s\n", buf);
+	fflush (stdout);
         //bufferevent_write(bev, buf, n);
 		//strcat(buf, tempbuf);
+    }
+    if (strlen(buf)==0){
+	    printf("n-%d\n", n);
+	    return;
+	    //bufferevent_free();
     }
     //////////////////////////////////////////////////////////
     int header_check = -1;
@@ -223,8 +231,8 @@ static void readcb(struct bufferevent *bev, void *ctx){
                 ptr1 = strtok_r(ptr1, " ", &next_ptr); // ptr1 = DELETE
                 ptr1 = strtok_r(NULL, " ", &next_ptr); // ptr1 = /location
                 strcpy(key_buf, ptr1+1); // the location(=key)
-                if(strncmp("robot/", key_buf, 7)==0){
-                    ptr2 = key_buf+7;
+                if(strncmp("robot/", key_buf, 6)==0){
+                    ptr2 = key_buf+6;
                     pair_resp(memory_red, "DEL", ptr2, ptr2);
                 } else {
                     printf("no /robot/ROID\n");
@@ -235,6 +243,7 @@ static void readcb(struct bufferevent *bev, void *ctx){
             }
             else {
                 printf("Invalid method\n");
+		return ;
             }
 		}
 	} 
@@ -265,6 +274,9 @@ read_2cb(struct bufferevent *bev, void *ctx)
     char red_buf[1024*9];
     int n;
 
+    memset(buf, 0x00, 1024*8);
+    memset(red_buf, 0x00, 1024*9);
+
     while ((n = evbuffer_remove(src, buf, sizeof(buf))) > 0) {
 		fwrite(buf, 1, n, stdout);
     	fflush(stdout);
@@ -288,8 +300,10 @@ read_2cb(struct bufferevent *bev, void *ctx)
         strcat(red_buf, ch_buf_len);
         strcat(red_buf, "\r\n\r\n");
         strcat(red_buf, buf);
+
+	printf("--------------\n%s------------\n", red_buf);
         
-        evbuffer_add(dst, red_buf, strlen(red_buf));
+        int m  =evbuffer_add(dst, red_buf, strlen(red_buf));
 	}
 }
 
@@ -328,10 +342,12 @@ eventcb(struct bufferevent *bev, short what, void *ctx)
 			if (errno)
 				perror("connection error");
 		}
+		printf("eof\n");
 
 		if (partner) {
 			/* Flush all pending data */
-			readcb(bev, ctx);
+			//readcb(bev, ctx);
+			/*
 
 			if (evbuffer_get_length(
 				    bufferevent_get_output(partner))) {
@@ -341,7 +357,8 @@ eventcb(struct bufferevent *bev, short what, void *ctx)
 				bufferevent_disable(partner, EV_READ);
 			} else {
 				bufferevent_free(partner);
-			}
+			}*/
+			bufferevent_free(partner);
 		}
 		bufferevent_free(bev);
 	}
