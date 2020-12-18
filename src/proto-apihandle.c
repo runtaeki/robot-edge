@@ -51,22 +51,28 @@ int recvd_resp(char* memory, char* return_mem){
 	int item_len = 0;
 
 	int total_len = 0;
-	printf("pair transforming start\nmethod: %s\n", method);
+	printf("pair transforming start\nmethod:\n");
 
 	char * ptr1 = memory;
 	char* next_ptr;
 
+	//printf("%s\n", memory);
+
 	if (strncmp(memory, "*", 1)==0){
+		//printf("* is here\n");
 		ptr1 = ptr1 + 1;
-		ptr1 = strtok_r(ptr1, "\r", &next_ptr);
+		ptr1 = strtok_r(ptr1, "\r\n", &next_ptr);
 		list_num = atoi(ptr1);
+		printf("%d\n", list_num);
 
 		for (int i = 0; i<list_num; i++){
-			ptr1 = strtok_r(NULL, "\r", &next_ptr);
-			if(strncmp(memory, "$", 1)==0){
+			ptr1 = strtok_r(NULL, "\r\n", &next_ptr);
+			//printf("%s", ptr1);
+			memset(item, 0x00, sizeof(item));
+			if(strncmp(ptr1, "$", 1)==0){
 				ptr1 = ptr1 + 1;
 				item_len = atoi(ptr1);
-				ptr1 = strtok_r(NULL, "\r", &next_ptr);
+				ptr1 = strtok_r(NULL, "\r\n", &next_ptr);
 				strncpy(item, ptr1, item_len);
 
 				strcat(return_mem, item);
@@ -77,14 +83,22 @@ int recvd_resp(char* memory, char* return_mem){
 			}
 		}
 		return 1;
-	} else if (strcmp(memory, ":0", 2)==0){
+	} else if (strncmp(memory, ":0", 2)==0){
 		return 400;
-	} else if (strcmp(memory, "-", 1)==0) {
+	} else if (strncmp(memory, "-", 1)==0) {
 		return -1;
+	} else if (strncmp(memory, "$", 1)==0) {
+		ptr1 = ptr1+1;
+		ptr1 = strtok_r(ptr1, "\r\n", &next_ptr);
+		item_len = atoi(ptr1);
+		strncpy(return_mem, next_ptr+1, item_len);
+		return 0;
 	} else {
-		strcpy(return_mem, memory);
+		//printf("else case!!\n");
+		//strcpy(return_mem, memory);
 		return 0;
 	}
+
 }
 
 
@@ -341,16 +355,19 @@ read_2cb(struct bufferevent *bev, void *ctx)
 		char *ret_memory = malloc(MEM_SIZE); //4MB malloc memory
 		memset(ret_memory, 0x00, MEM_SIZE);
 
-		int ret_val = recvd_resp(red_buf, ret_memory);
+		int ret_val = recvd_resp(buf, ret_memory);
 		int buf_len = strlen(ret_memory);
 
 		if(ret_val == -1){
+			printf("ret:-1");
 			char resp_str[] = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length:5\r\n\r\nERROR";
         	evbuffer_add(dst, resp_str, strlen(resp_str));
 		} else if( ret_val == 400 ){
-			char resp_str[] = "HTTP/1.1 400 Not Found\r\nContent-Type: text/html\r\nContent-Length:5\r\n\r\nERROR";
+			printf("ret:400");
+			char resp_str[] = "HTTP/1.1 400 Not Found\r\nContent-Type: text/html\r\nContent-Length:5\r\n\r\nNot Found";
         	evbuffer_add(dst, resp_str, strlen(resp_str));
 		} else if(ret_val == 1){
+			printf("ret:1");
         	strcpy(red_buf, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ");
 			char ch_buf_len[10];
 			sprintf(ch_buf_len, "%d", buf_len);
