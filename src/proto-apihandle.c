@@ -64,6 +64,8 @@ int recvd_resp(char* memory, char* return_mem){
 		ptr1 = strtok_r(ptr1, "\r\n", &next_ptr);
 		list_num = atoi(ptr1);
 		printf("%d\n", list_num);
+		strcat(return_mem, "[ \r\n");
+
 
 		for (int i = 0; i<list_num; i++){
 			ptr1 = strtok_r(NULL, "\r\n", &next_ptr);
@@ -76,7 +78,13 @@ int recvd_resp(char* memory, char* return_mem){
 				strncpy(item, ptr1, item_len);
 
 				strcat(return_mem, item);
-				strcat(return_mem, "\r\n");
+				if (i != list_num-1){
+					strcat(return_mem, ",\r\n");
+				}
+				else {
+					strcat(return_mem, "\r\n]");
+
+				}
 			}
 			else{
 				printf("why this case?\n");
